@@ -1,23 +1,11 @@
 # VALIS integration checklist
-
-## Character
-- [ ] Add the rigged GLB under app/src/main/assets/valis/.
-- [ ] Inventory real clip, bone, morph and viseme names.
-- [ ] Implement and validate the concrete Filament renderer.
-- [ ] Test animation blending only on verified compatible tracks.
-
-## Android
-- [ ] Test overlay permission, dragging, snapping and safe areas.
-- [ ] Test foreground-service restrictions and notification.
-- [ ] Add licensed "Yo VALIS" wake-word engine/model.
-- [ ] Add MediaProjection foreground capture service after consent.
-- [ ] Implement user-enabled accessibility actions with allow-list.
-
-## Intelligence
-- [ ] Verify model licence and commercial-use terms.
-- [ ] Deploy inference endpoint and define audio/image request schema.
-- [ ] Configure secrets outside source control.
-- [ ] Add streaming audio, latency handling and fallback paths.
-- [ ] Add memory controls and privacy disclosures.
-
-This repository currently contains integration contracts, not a completed renderer, wake-word model or deployed inference service.
+- [ ] Add the supplied rigged GLB under app/src/main/assets/valis/.
+- [ ] Inventory actual clip, bone, morph and viseme names.
+- [ ] Implement/test concrete Filament renderer against that GLB.
+- [ ] Add safe animation layering and procedural motion for verified bones.
+- [ ] Test overlay permission, drag, snapping and safe areas.
+- [ ] Add licensed "Yo VALIS" wake-word runtime/model.
+- [ ] Complete MediaProjection foreground capture service.
+- [ ] Implement user-enabled accessibility actions and confirmation flow.
+- [ ] Verify model licence; deploy inference endpoint; configure secrets.
+- [ ] Test latency, memory, GPU, thermal, battery and privacy disclosures.
