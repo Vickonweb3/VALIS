@@ -1,36 +1,50 @@
-# VALIS Character Runtime
+# VALIS — Android Character Runtime
 
-Phase 1 browser-based development harness for the actual VALIS rigged GLB.
+Native Android foundation for VALIS. This repository is being built around the real character runtime and floating companion, not a browser-based GLB viewer.
 
-## Current capabilities
-- Load a local GLB/GLTF file. The model is processed locally in the browser; it is not uploaded.
-- Inspect meshes, skinned meshes, bones, animation clips, materials and morph targets.
-- Play, pause, stop, scrub and change playback speed for animation clips.
-- Cross-fade when switching clips.
-- Apply facial morph presets and manually adjust detected morph targets.
-- Toggle spontaneous idle behaviour using randomized timing and a recent-action avoidance window.
-- Orbit, zoom, reset camera and fullscreen preview.
+## Current milestone
 
-## Run locally
-Requires Node.js 20.19+ or 22.12+.
+This commit replaces the accidental web viewer with an Android/Kotlin project foundation.
+
+Included:
+- Native Android application module.
+- Minimal launch activity; this is a developer shell, not the final product UI.
+- Overlay permission flow and a foreground overlay service foundation.
+- Character runtime interfaces separating rendering, animation and behaviour.
+- Filament Android dependency reserved for the native GLB renderer.
+
+Not yet implemented:
+- Actual GLB loading/rendering in Filament.
+- Binding VALIS's specific skeleton and animation clips.
+- Autonomous procedural movement and animation blending.
+- Wake-word, speech, vision, AI inference, memory or phone actions.
+
+## Project layout
+
+- `app/`: Android application.
+- `app/src/main/java/ai/valis/app/`: application and overlay lifecycle.
+- `app/src/main/java/ai/valis/character/`: renderer/animation/behaviour contracts.
+- `docs/ARCHITECTURE.md`: implementation boundaries and next steps.
+
+## Build
+
+Requires Android Studio or a compatible Android SDK + JDK 17 + Gradle.
 
 ```bash
-npm install
-npm run dev
+./gradlew :app:assembleDebug
 ```
 
-Open the local Vite URL and load a copy of `VALIS_rigged.glb`.
+The Gradle wrapper is not committed in this initial scaffold. Generate it with an installed Gradle distribution using `gradle wrapper`, or open the project in Android Studio and let it configure Gradle.
 
-## Important boundaries
-- This is a development preview, not the final Android runtime.
-- Autonomous idle currently selects from existing animation clips; it is not generative motion.
-- Facial presets use detected morph targets. If an animation clip also animates those same targets, stop that clip before testing manual facial controls.
-- This build does not yet blend arbitrary full-body clips simultaneously. Many full-body clips animate overlapping bones; blindly blending them can create conflicting poses. A later motion-layer system needs track masks or procedural controls.
-- The original GLB is never modified.
-- Android overlay, microphone, wake-word, screen vision, AI inference and persistent memory are not included yet.
+## Development order
 
-## Next milestones
-1. Validate all clips and facial morph targets visually.
-2. Build safe animation layers and procedural head/eye movement.
-3. Add behaviour priorities, interruption and event-driven reactions.
-4. Port the character runtime to the selected Android rendering stack.
+1. Integrate and validate the supplied rigged GLB with Filament.
+2. Map the model's real animation clip names and skeleton.
+3. Implement animation state control and safe transitions.
+4. Render the character inside the overlay service.
+5. Add autonomous behaviour and procedural movement.
+6. Add wake-word and voice interaction.
+7. Add permitted screen understanding and phone actions.
+8. Build the polished companion settings UI last.
+
+The character asset itself is intentionally not committed until the final GLB is supplied and its size/licensing are checked.
