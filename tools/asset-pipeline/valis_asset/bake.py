@@ -132,7 +132,7 @@ def bake(glb: Glb, cfg: BakeConfig | None = None) -> tuple[dict, bytes]:
 
     clips = []
     for anim in glb.animations():
-        clips.append(_bake_clip(anim, joints, jname, jindex, morphs, cfg, put))
+        clips.append(_bake_clip(anim, joints, jname, jindex, morphs, cfg, put, glb.node_name))
 
     index = {
         "format": FORMAT,
@@ -151,7 +151,7 @@ def bake(glb: Glb, cfg: BakeConfig | None = None) -> tuple[dict, bytes]:
     return index, bytes(payload)
 
 
-def _bake_clip(anim: Animation, joints, jname, jindex, morphs, cfg, put) -> dict:
+def _bake_clip(anim: Animation, joints, jname, jindex, morphs, cfg, put, node_name) -> dict:
     dur = anim.duration
     frames = max(2, int(round(dur * cfg.fps)) + 1)
     t = np.arange(frames, dtype=np.float64) / cfg.fps
@@ -200,7 +200,7 @@ def _bake_clip(anim: Animation, joints, jname, jindex, morphs, cfg, put) -> dict
         for group in sorted(by_group):
             cols = by_group[group]
             q = np.round(np.clip(w[:, cols], 0, 1) * 65535).astype(np.uint16)
-            morph_out.append({"mesh": n, "group": group, "targets": cols, "weights": put(q)})
+            morph_out.append({"mesh": node_name(n), "group": group, "targets": cols, "weights": put(q)})
 
     meaningful = [j for j in moving if not _is_float_joint(jname[j])]
     clip = {

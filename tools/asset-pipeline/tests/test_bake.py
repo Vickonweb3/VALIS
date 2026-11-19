@@ -125,6 +125,14 @@ class RealAsset(unittest.TestCase):
         back = B.dequantize_quats(q16)
         self.assertGreater(float(B.angle_between(back, back[0:1]).max()), 3.0)
 
+    def test_clip_morph_meshes_are_names_declared_in_index(self):
+        # The Android runtime resolves clip morph tracks by mesh *name*; a numeric node index broke loading once.
+        declared = set(self.index["morphs"])
+        for c in self.index["clips"]:
+            for m in c["morphs"]:
+                self.assertIsInstance(m["mesh"], str, c["name"])
+                self.assertIn(m["mesh"], declared, c["name"])
+
     def test_bake_is_deterministic(self):
         i2, p2 = B.bake(self.glb, B.BakeConfig(overrides=json.loads(OVERRIDES.read_text())))
         self.assertEqual(p2, self.payload)
