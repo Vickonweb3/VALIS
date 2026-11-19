@@ -1,0 +1,40 @@
+name: backend
+on:
+  push:
+    paths: ["services/backend/**", ".github/workflows/backend.yml"]
+  pull_request:
+    paths: ["services/backend/**"]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm test
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply migration
+        run: psql -h localhost -U postgres -v ON_ERROR_STOP=1 -f services/backend/migrations/001_init.sql
+      - name: Every org_id table must force RLS
+        run: |
+          out=$(psql -h localhost -U postgres -At -f services/backend/migrations/check_rls.sql)
+          if [ -n "$out" ]; then echo "Tables without forced RLS:"; echo "$out"; exit 1; fi
