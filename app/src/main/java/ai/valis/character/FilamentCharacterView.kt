@@ -59,6 +59,7 @@ class FilamentCharacterView(context: Context) : FrameLayout(context) {
     private var sun = 0
     private var ibl: IndirectLight? = null
     private var swapChain: SwapChain? = null
+    private var nativeSurface: android.view.Surface? = null
     private var provider: UbershaderProvider? = null
     private var loader: AssetLoader? = null
     private var asset: FilamentAsset? = null
@@ -80,11 +81,13 @@ class FilamentCharacterView(context: Context) : FrameLayout(context) {
         addView(surface, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         ui.renderCallback = object : UiHelper.RendererCallback {
             override fun onNativeWindowChanged(s: android.view.Surface) {
+                nativeSurface = s   // remembered: the surface usually arrives before the model finishes loading
                 val e = engine ?: return
                 swapChain?.let { e.destroySwapChain(it) }
                 swapChain = e.createSwapChain(s, ui.swapChainFlags)
             }
             override fun onDetachedFromSurface() {
+                nativeSurface = null
                 val e = engine ?: return
                 swapChain?.let { e.destroySwapChain(it); e.flushAndWait() }
                 swapChain = null
@@ -123,6 +126,7 @@ class FilamentCharacterView(context: Context) : FrameLayout(context) {
                 it.blendMode = View.BlendMode.TRANSLUCENT
             }
             addLights(e)
+            nativeSurface?.let { swapChain = e.createSwapChain(it, ui.swapChainFlags) }
 
             val p = UbershaderProvider(e).also { provider = it }
             val l = AssetLoader(e, p, EntityManager.get()).also { loader = it }
