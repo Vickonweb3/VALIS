@@ -42,6 +42,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // CI smoke test hook: honoured only in debuggable builds, never in a release APK.
+        val debuggable = applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
+        if (debuggable && intent.getBooleanExtra("valis_autostart", false)) ai.valis.app.overlay.OverlayController.start(this)
         prefs = OverlayPrefs(this)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; setBackgroundColor(INK); setPadding(dp(20), dp(28), dp(20), dp(20))
