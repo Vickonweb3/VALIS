@@ -18,4 +18,5 @@ dependencies {
     implementation("com.google.android.filament:filament-android:1.56.0")
     implementation("com.google.android.filament:filament-utils-android:1.56.0")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }

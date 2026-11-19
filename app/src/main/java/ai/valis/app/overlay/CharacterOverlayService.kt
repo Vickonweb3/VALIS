@@ -12,6 +12,8 @@ import android.widget.*
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import ai.valis.app.MainActivity
+import ai.valis.character.CharacterState
+import ai.valis.character.FilamentCharacterView
 
 class CharacterOverlayService : Service() {
     private lateinit var wm: WindowManager
@@ -19,6 +21,9 @@ class CharacterOverlayService : Service() {
     private var panel: LinearLayout? = null
     private lateinit var lp: WindowManager.LayoutParams
     private var expanded = false
+    private var character: FilamentCharacterView? = null
+    private var status: TextView? = null
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
 
     override fun onCreate() {
         super.onCreate()
@@ -62,6 +67,19 @@ class CharacterOverlayService : Service() {
                 setColor(0xEE0E0E19.toInt()); cornerRadius=dp(22).toFloat(); setStroke(dp(1),0xFF1B55FF.toInt())
             }
         }
+        val stage = FilamentCharacterView(this).also { character = it }
+        box.addView(stage, LinearLayout.LayoutParams(dp(150), dp(200)))
+        stage.setOnTouchListener(DragTouch())
+        stage.onReady = {
+            stage.setState(CharacterState.SUMMONED)
+            handler.postDelayed({ character?.setState(CharacterState.IDLE) }, 3000)
+        }
+        stage.onError = { t ->
+            android.util.Log.e("VALIS.Overlay", "character unavailable", t)
+            stage.visibility = View.GONE
+            status?.text = "Character unavailable: ${t.message ?: t.javaClass.simpleName}"
+        }
+        stage.load()
         val head = LinearLayout(this).apply { gravity=Gravity.CENTER_VERTICAL }
         val avatar = TextView(this).apply {
             text="V"; textSize=22f; gravity=Gravity.CENTER; setTextColor(-1)
@@ -74,7 +92,7 @@ class CharacterOverlayService : Service() {
         box.addView(head)
         panel=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL; visibility=View.GONE; setPadding(dp(4),dp(8),dp(4),0)
-            addView(TextView(this@CharacterOverlayService).apply { text="Character renderer attachment point"; setTextColor(0xFFE3E4F1.toInt()) })
+            addView(TextView(this@CharacterOverlayService).apply { text="Listening for you"; setTextColor(0xFFE3E4F1.toInt()); status = this })
             addView(Button(this@CharacterOverlayService).apply { text="Turn off VALIS"; setOnClickListener { OverlayController.stop(this@CharacterOverlayService) } })
         }
         box.addView(panel)
@@ -96,7 +114,7 @@ class CharacterOverlayService : Service() {
         }
     }
     private fun dp(v:Int)=(v*resources.displayMetrics.density).toInt()
-    override fun onDestroy(){ root?.let{if(it.isAttachedToWindow)wm.removeView(it)};root=null;super.onDestroy() }
+    override fun onDestroy(){ handler.removeCallbacksAndMessages(null); character?.destroy(); character=null; root?.let{if(it.isAttachedToWindow)wm.removeView(it)};root=null;super.onDestroy() }
     override fun onBind(intent:Intent?):IBinder?=null
     companion object { private const val CHANNEL="valis_companion";private const val ID=4101 }
 }
