@@ -1,0 +1,73 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>VALIS in use</title><style>
+:root{--co:#1B55FF;--co7:#123BB8;--co1:#E3EAFF;--ink:#0E0E19;--i7:#2B2D45;--i5:#5A5D7A;--i4:#8A8DA6;--p5:#F6F6FB;--p1:#ECEDF6;--p2:#E3E4F1;--am:#C77700;--am1:#FFF1D6;--rd:#C62F2F;--rd1:#FFE3E3;--gr:#12805C;--gr1:#DDF5EA}
+*{box-sizing:border-box}body{margin:0;background:#D9DAE6;font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.top{padding:22px 16px 6px;max-width:900px;margin:auto}.top h1{margin:0;font-size:22px}.top p{margin:4px 0 0;color:var(--i5);font-size:14px;line-height:1.45}
+.wrap{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;padding:18px 12px 60px}
+.fig{width:390px;max-width:100%}.cap{font:600 12px 'DM Mono',monospace;color:var(--i5);margin:0 0 8px 4px}
+.ph{width:390px;max-width:100%;background:var(--p5);border-radius:32px;border:6px solid var(--ink);overflow:hidden;display:flex;flex-direction:column;min-height:760px;box-shadow:0 10px 30px #0e0e1933}
+.sb{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:12px;font-weight:700;color:var(--ink)}
+.bar{display:flex;align-items:center;gap:10px;padding:10px 20px}.bar h2{margin:0;font-size:20px;flex:1}
+.chip{background:var(--p2);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--i7);white-space:nowrap}
+.av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.body{flex:1;padding:6px 20px 20px;display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border-radius:20px;padding:16px}.card.p{background:var(--p1)}.card.d{background:var(--ink);color:#fff}
+h3{margin:0 0 4px;font-size:16px}.s{font-size:14px;color:var(--i5);line-height:1.4}.d .s{color:#B9BBD3}.xs{font-size:12px;color:var(--i4)}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--p2);min-height:56px}.row:first-child{border-top:0}
+.row .t{flex:1;min-width:0}.row .t b{display:block;font-size:15px}.row .t span{font-size:13px;color:var(--i5);line-height:1.35;display:block}
+.peb{width:40px;height:40px;border-radius:50%;background:var(--co1);display:grid;place-items:center;flex:none;font-size:17px;color:var(--co)}
+.peb.a{background:var(--am1);color:var(--am)}.peb.g{background:var(--gr1);color:var(--gr)}.peb.r{background:var(--rd1);color:var(--rd)}.peb.k{background:var(--p2);color:var(--i7)}
+.pill{font-size:12px;font-weight:700;border-radius:999px;padding:5px 10px;white-space:nowrap;flex:none}
+.pill.g{background:var(--gr1);color:var(--gr)}.pill.a{background:var(--am1);color:var(--am)}.pill.r{background:var(--rd1);color:var(--rd)}.pill.b{background:var(--co1);color:var(--co7)}.pill.k{background:var(--p2);color:var(--i7)}
+.tg{width:48px;height:28px;border-radius:999px;background:var(--p2);position:relative;flex:none}.tg:after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff}
+.tg.on{background:var(--co)}.tg.on:after{left:23px}
+.btn{display:block;text-align:center;border-radius:14px;padding:15px;font-weight:700;font-size:16px;min-height:48px}
+.btn.p{background:var(--co);color:#fff}.btn.s2{background:var(--co1);color:var(--co7)}.btn.o{background:#fff;color:var(--ink);border:2px solid var(--p2)}.btn.r{background:var(--rd1);color:var(--rd)}
+.btns{display:flex;gap:10px}.btns .btn{flex:1}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--co);margin-right:8px;vertical-align:middle}
+.disc{width:200px;height:200px;border-radius:50%;background:var(--ink);display:grid;place-items:center;margin:0 auto;overflow:hidden}.disc img{width:170px;height:auto;display:block;margin-top:14px}
+.disc.sm{width:112px;height:112px}.disc.sm img{width:96px;margin-top:8px}
+.nav{display:flex;border-top:1px solid var(--p2);background:#fff;padding:8px 8px 14px}.nav div{flex:1;text-align:center;font-size:11px;font-weight:700;color:var(--i4);display:flex;flex-direction:column;align-items:center;gap:3px;min-height:48px;justify-content:center}.nav div i{font-style:normal;font-size:18px}.nav div.on{color:var(--co)}
+.seg{display:flex;background:var(--p2);border-radius:14px;padding:4px;gap:4px}.seg div{flex:1;text-align:center;padding:10px 4px;border-radius:11px;font-size:13px;font-weight:700;color:var(--i5)}.seg div.on{background:#fff;color:var(--ink)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chips .chip.on{background:var(--ink);color:#fff}
+.meter{height:10px;border-radius:999px;background:var(--p2);overflow:hidden;position:relative}.meter i{display:block;height:100%;background:var(--co);border-radius:999px}.meter i.w{background:var(--am)}
+.sl{height:8px;border-radius:999px;background:var(--p2);position:relative;margin:16px 10px}.sl i{position:absolute;left:0;top:0;bottom:0;background:var(--co);border-radius:999px}.sl b{position:absolute;top:-8px;width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid var(--co);margin-left:-12px}
+.lbls{display:flex;justify-content:space-between;font-size:12px;color:var(--i5);font-weight:700}
+.ban{border-radius:16px;padding:14px;font-size:14px;line-height:1.4;display:flex;gap:10px}.ban.a{background:var(--am1);color:#6b4100}.ban.r{background:var(--rd1);color:#7d1c1c}.ban.b{background:var(--co1);color:var(--co7)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.tile{background:#fff;border-radius:16px;padding:12px}.tile b{display:block;font-size:24px;font-variant-numeric:tabular-nums}.tile span{font-size:12px;color:var(--i5)}
+.day{font:700 12px 'DM Mono',monospace;color:var(--i5);letter-spacing:.5px;margin:4px 0 -4px}
+.overlay-bg{background:linear-gradient(#cfd2e6,#e4e6f2);flex:1;padding:20px;display:flex;flex-direction:column;gap:14px;position:relative}
+.fake{height:12px;border-radius:6px;background:#bfc2d8}
+.pad{height:8px}
+.mem{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--p2)}.mem:first-child{border-top:0}
+.av2{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:none}
+.eph{width:390px;max-width:100%;background:#fff;border-radius:32px;border:6px solid var(--ink);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 30px #0e0e1933;position:relative;min-height:800px}
+.app{padding:10px 18px;display:flex;flex-direction:column;gap:12px;background:#F4F5F7;flex:1}.ah{display:flex;justify-content:space-between;align-items:center;padding:6px 0}.ah b{font-size:20px}
+.ac{background:#fff;border-radius:16px;padding:12px;display:flex;gap:12px;align-items:center}.ph1{width:64px;height:64px;border-radius:12px;background:#cfd8f0;flex:none}.ac b{font-size:15px}
+.ov{position:absolute;right:8px;bottom:100px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;width:240px}.ch{width:150px;height:auto;display:block}
+.chipr{max-width:240px;display:flex;justify-content:flex-end}.cap2{background:var(--ink);color:#fff;border-radius:16px 16px 4px 16px;padding:10px 12px;font-size:13px;line-height:1.35}
+.cap3{padding:14px 18px 20px;font-size:14px;color:var(--i7);line-height:1.45;background:#fff;border-top:1px solid var(--p2);min-height:92px}
+</style><div class="top"><h1>VALIS in use · 8 states</h1><p>The real character over a made-up third-party app (“Roamly”). Renders come from VALIS_rigged.glb; the app, chips and captions are design proposals.</p></div><div class="wrap"><div class="fig"><div class="cap">1/8 · Floating</div><div class="eph"><div class="sb"><span>9:41</span><span>5G ▮▮▮</span></div>
+<div class="app"><div class="ah"><b>Roamly</b><span class="chip">Trips</span></div><div class="ac"><div class="ph1"></div><div><b>Lisbon, 3 days</b><div class="s">Flights · Hotels · Plan</div></div></div><div class="ac"><div class="ph1" style="background:#cfe3d4"></div><div><b>Porto weekend</b><div class="s">Draft</div></div></div><div class="ac"><div class="ph1" style="background:#e8d9c4"></div><div><b>Madeira hikes</b><div class="s">Saved</div></div></div></div>
+<div class="ov"><div class="chipr"></div><img class="ch" src="assets/char/idle.webp" alt="VALIS Floating" style="transform:rotate(0deg)"></div>
+<div class="cap3">VALIS rests in the corner while you use any app. Taps pass through everywhere else.</div></div></div><div class="fig"><div class="cap">2/8 · Listening</div><div class="eph"><div class="sb"><span>9:41</span><span>5G ▮▮▮</span></div>
+<div class="app"><div class="ah"><b>Roamly</b><span class="chip">Trips</span></div><div class="ac"><div class="ph1"></div><div><b>Lisbon, 3 days</b><div class="s">Flights · Hotels · Plan</div></div></div><div class="ac"><div class="ph1" style="background:#cfe3d4"></div><div><b>Porto weekend</b><div class="s">Draft</div></div></div><div class="ac"><div class="ph1" style="background:#e8d9c4"></div><div><b>Madeira hikes</b><div class="s">Saved</div></div></div></div>
+<div class="ov"><div class="chipr"><span class="pill b">● Listening</span></div><img class="ch" src="assets/char/listening.webp" alt="VALIS Listening" style="transform:rotate(0deg)"></div>
+<div class="cap3">“Yo, VALIS” — it turns, tilts and shows a quiet cobalt ring.</div></div></div><div class="fig"><div class="cap">3/8 · Thinking</div><div class="eph"><div class="sb"><span>9:41</span><span>5G ▮▮▮</span></div>
+<div class="app"><div class="ah"><b>Roamly</b><span class="chip">Trips</span></div><div class="ac"><div class="ph1"></div><div><b>Lisbon, 3 days</b><div class="s">Flights · Hotels · Plan</div></div></div><div class="ac"><div class="ph1" style="background:#cfe3d4"></div><div><b>Porto weekend</b><div class="s">Draft</div></div></div><div class="ac"><div class="ph1" style="background:#e8d9c4"></div><div><b>Madeira hikes</b><div class="s">Saved</div></div></div></div>
+<div class="ov"><div class="chipr"><span class="pill k">Checking your calendar…</span></div><img class="ch" src="assets/char/thinking.webp" alt="VALIS Thinking" style="transform:rotate(0deg)"></div>
+<div class="cap3">Looks aside while the model works. A small chip says what it is doing.</div></div></div><div class="fig"><div class="cap">4/8 · Speaking</div><div class="eph"><div class="sb"><span>9:41</span><span>5G ▮▮▮</span></div>
+<div class="app"><div class="ah"><b>Roamly</b><span class="chip">Trips</span></div><div class="ac"><div class="ph1"></div><div><b>Lisbon, 3 days</b><div class="s">Flights · Hotels · Plan</div></div></div><div class="ac"><div class="ph1" style="background:#cfe3d4"></div><div><b>Porto weekend</b><div class="s">Draft</div></div></div><div class="ac"><div class="ph1" style="background:#e8d9c4"></div><div><b>Madeira hikes</b><div class="s">Saved</div></div></div></div>
+<div class="ov"><div class="chipr"><div class="cap2">“You’re free at three. Want me to set a reminder?”</div></div><img class="ch" src="assets/char/speaking.webp" alt="VALIS Speaking" style="transform:rotate(0deg)"></div>
+<div class="cap3">Mouth follows the voice. A caption can show the words.</div></div></div><div class="fig"><div class="cap">5/8 · Acting</div><div class="eph"><div class="sb"><span>9:41</span><span>5G ▮▮▮</span></div>
+<div class="app"><div class="ah"><b>Roamly</b><span class="chip">Trips</span></div><div class="ac"><div class="ph1"></div><div><b>Lisbon, 3 days</b><div class="s">Flights · Hotels · Plan</div></div></div><div class="ac"><div class="ph1" style="background:#cfe3d4"></div><div><b>Porto weekend</b><div class="s">Draft</div></div></div><div class="ac"><div class="ph1" style="background:#e8d9c4"></div><div><b>Madeira hikes</b><div class="s">Saved</div></div></div></div>
+<div class="ov"><div class="chipr"><span class="pill a">Waiting for your OK</span></div><img class="ch" src="assets/char/acting.webp" alt="VALIS Acting" style="transform:rotate(0deg)"></div>
+<div class="cap3">Reaches toward what it is about to do. The phone shows the confirmation.</div></div></div><div class="fig"><div class="cap">6/8 · Interrupted</div><div class="eph"><div class="sb"><span>9:41</span><span>5G ▮▮▮</span></div>
+<div class="app"><div class="ah"><b>Roamly</b><span class="chip">Trips</span></div><div class="ac"><div class="ph1"></div><div><b>Lisbon, 3 days</b><div class="s">Flights · Hotels · Plan</div></div></div><div class="ac"><div class="ph1" style="background:#cfe3d4"></div><div><b>Porto weekend</b><div class="s">Draft</div></div></div><div class="ac"><div class="ph1" style="background:#e8d9c4"></div><div><b>Madeira hikes</b><div class="s">Saved</div></div></div></div>
+<div class="ov"><div class="chipr"><span class="pill k">Go ahead</span></div><img class="ch" src="assets/char/interrupted.webp" alt="VALIS Interrupted" style="transform:rotate(0deg)"></div>
+<div class="cap3">You talk over it: a small startle, then it listens.</div></div></div><div class="fig"><div class="cap">7/8 · Sleeping</div><div class="eph"><div class="sb"><span>9:41</span><span>5G ▮▮▮</span></div>
+<div class="app"><div class="ah"><b>Roamly</b><span class="chip">Trips</span></div><div class="ac"><div class="ph1"></div><div><b>Lisbon, 3 days</b><div class="s">Flights · Hotels · Plan</div></div></div><div class="ac"><div class="ph1" style="background:#cfe3d4"></div><div><b>Porto weekend</b><div class="s">Draft</div></div></div><div class="ac"><div class="ph1" style="background:#e8d9c4"></div><div><b>Madeira hikes</b><div class="s">Saved</div></div></div></div>
+<div class="ov"><div class="chipr"><span class="pill k">Zzz · tap to wake</span></div><img class="ch" src="assets/char/sleeping.webp" alt="VALIS Sleeping" style=""></div>
+<div class="cap3">Sits down, eyes soft, tucked to the edge. A tap wakes it.</div></div></div><div class="fig"><div class="cap">8/8 · Error</div><div class="eph"><div class="sb"><span>9:41</span><span>5G ▮▮▮</span></div>
+<div class="app"><div class="ah"><b>Roamly</b><span class="chip">Trips</span></div><div class="ac"><div class="ph1"></div><div><b>Lisbon, 3 days</b><div class="s">Flights · Hotels · Plan</div></div></div><div class="ac"><div class="ph1" style="background:#cfe3d4"></div><div><b>Porto weekend</b><div class="s">Draft</div></div></div><div class="ac"><div class="ph1" style="background:#e8d9c4"></div><div><b>Madeira hikes</b><div class="s">Saved</div></div></div></div>
+<div class="ov"><div class="chipr"><span class="pill r">Couldn’t reach the server</span></div><img class="ch" src="assets/char/error.webp" alt="VALIS Error" style="transform:rotate(0deg)"></div>
+<div class="cap3">A shrug and a plain sentence, never silence.</div></div></div></div>

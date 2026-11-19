@@ -1,0 +1,79 @@
+<!doctype html><html><body style="margin:0;background:transparent"><canvas id="c" width="900" height="1100"></canvas>
+<script>
+const M={mul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s}return o},
+id(){return new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1])},
+trs(t,q,s){const[x,y,z,w]=q,x2=x+x,y2=y+y,z2=z+z,xx=x*x2,xy=x*y2,xz=x*z2,yy=y*y2,yz=y*z2,zz=z*z2,wx=w*x2,wy=w*y2,wz=w*z2;
+return new Float32Array([(1-(yy+zz))*s[0],(xy+wz)*s[0],(xz-wy)*s[0],0,(xy-wz)*s[1],(1-(xx+zz))*s[1],(yz+wx)*s[1],0,(xz+wy)*s[2],(yz-wx)*s[2],(1-(xx+yy))*s[2],0,t[0],t[1],t[2],1])},
+persp(f,a,n,fa){const t=1/Math.tan(f/2);return new Float32Array([t/a,0,0,0,0,t,0,0,0,0,(fa+n)/(n-fa),-1,0,0,2*fa*n/(n-fa),0])},
+rotY(a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,0,-s,0,0,1,0,0,s,0,c,0,0,0,0,1])},
+tr(x,y,z){const m=M.id();m[12]=x;m[13]=y;m[14]=z;return m}};
+function slerp(a,b,t){let d=a[0]*b[0]+a[1]*b[1]+a[2]*b[2]+a[3]*b[3];let bb=b;if(d<0){d=-d;bb=b.map(v=>-v)}
+if(d>0.9995){const r=a.map((v,i)=>v+(bb[i]-v)*t);const l=Math.hypot(...r);return r.map(v=>v/l)}
+const th=Math.acos(d),s=Math.sin(th),w1=Math.sin((1-t)*th)/s,w2=Math.sin(t*th)/s;return a.map((v,i)=>v*w1+bb[i]*w2)}
+let G=null;
+async function load(url){const buf=await (await fetch(url)).arrayBuffer();const dv=new DataView(buf);
+const cl=dv.getUint32(12,true);const json=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,20,cl)));
+const bin=new Uint8Array(buf,20+cl+8);const ab=bin.buffer,bo=bin.byteOffset;
+const NC={SCALAR:1,VEC2:2,VEC3:3,VEC4:4,MAT4:16};const CT={5126:Float32Array,5123:Uint16Array,5125:Uint32Array,5121:Uint8Array};
+function acc(i){const a=json.accessors[i];const n=NC[a.type];const T=CT[a.componentType];const out=new T(a.count*n);
+if(a.bufferView!==undefined){const b=json.bufferViews[a.bufferView];const off=(b.byteOffset||0)+(a.byteOffset||0);
+if(b.byteStride&&b.byteStride!==n*T.BYTES_PER_ELEMENT){const dvv=new DataView(ab,bo);for(let k=0;k<a.count;k++)for(let c=0;c<n;c++)out[k*n+c]=dvv[T===Float32Array?'getFloat32':T===Uint16Array?'getUint16':T===Uint32Array?'getUint32':'getUint8'](off+k*b.byteStride+c*T.BYTES_PER_ELEMENT,true)}
+else out.set(new T(ab.slice(bo+off,bo+off+a.count*n*T.BYTES_PER_ELEMENT)))}
+if(a.sparse){const s=a.sparse;const ib=json.bufferViews[s.indices.bufferView];const vb=json.bufferViews[s.values.bufferView];
+const IT=CT[s.indices.componentType];const idx=new IT(ab.slice(bo+(ib.byteOffset||0)+(s.indices.byteOffset||0),bo+(ib.byteOffset||0)+(s.indices.byteOffset||0)+s.count*IT.BYTES_PER_ELEMENT));
+const vals=new T(ab.slice(bo+(vb.byteOffset||0)+(s.values.byteOffset||0),bo+(vb.byteOffset||0)+(s.values.byteOffset||0)+s.count*n*T.BYTES_PER_ELEMENT));
+for(let k=0;k<s.count;k++)for(let c=0;c<n;c++)out[idx[k]*n+c]=vals[k*n+c]}
+return out}
+const imgs=[];for(const im of json.images){const b=json.bufferViews[im.bufferView];const blob=new Blob([ab.slice(bo+(b.byteOffset||0),bo+(b.byteOffset||0)+b.byteLength)],{type:im.mimeType});imgs.push(await createImageBitmap(blob,{imageOrientation:'none'}))}
+return{json,acc,imgs}}
+const VS=`attribute vec3 p;attribute vec3 n;attribute vec2 uv;attribute vec4 j;attribute vec4 w;uniform mat4 J[27];uniform mat4 VP;uniform mat4 R;varying vec3 vn;varying vec2 vuv;varying vec3 vp;
+void main(){mat4 s=w.x*J[int(j.x)]+w.y*J[int(j.y)]+w.z*J[int(j.z)]+w.w*J[int(j.w)];vec4 wp=s*vec4(p,1.);vec4 rp=R*wp;vn=normalize(mat3(R)*mat3(s)*n);vuv=uv;vp=rp.xyz;gl_Position=VP*rp;}`;
+const FS=`precision highp float;varying vec3 vn;varying vec2 vuv;varying vec3 vp;uniform sampler2D tex;uniform vec3 flatc;uniform float useTex;uniform float em;
+void main(){vec3 N=normalize(vn);if(!gl_FrontFacing)N=-N;vec3 L1=normalize(vec3(-.45,.7,.8));vec3 L2=normalize(vec3(.8,.15,.3));
+float d=max(dot(N,L1),0.)*.62+max(dot(N,L2),0.)*.22;float hemi=.5+.5*N.y;
+vec3 base=useTex>.5?texture2D(tex,vuv).rgb:flatc;vec3 c=base*(.38+.30*hemi+d);
+float rim=pow(1.-max(dot(N,vec3(0,0,1)),0.),3.);c+=vec3(.25,.2,.55)*rim*.5;c+=base*em;
+gl_FragColor=vec4(c,1.);}`;
+function sh(gl,t,s){const x=gl.createShader(t);gl.shaderSource(x,s);gl.compileShader(x);if(!gl.getShaderParameter(x,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(x);return x}
+async function init(){const gl=document.getElementById('c').getContext('webgl',{alpha:true,premultipliedAlpha:false,preserveDrawingBuffer:true,antialias:true});
+gl.getExtension('OES_element_index_uint');const g=await load('valis.glb');const{json,acc}=g;const pr=gl.createProgram();gl.attachShader(pr,sh(gl,gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl,gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
+if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw gl.getProgramInfoLog(pr);gl.useProgram(pr);
+const tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,g.imgs[0]);gl.generateMipmap(gl.TEXTURE_2D);
+gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
+const skin=json.skins[0];const ibm=acc(skin.inverseBindMatrices);
+const meshes=json.meshes.map((m,mi)=>{const p=m.primitives[0];const base=acc(p.attributes.POSITION);const nrm=acc(p.attributes.NORMAL);
+const jt=acc(p.attributes.JOINTS_0),wt=acc(p.attributes.WEIGHTS_0);const jf=Float32Array.from(jt);
+const targets=(p.targets||[]).map(t=>({pos:acc(t.POSITION),nrm:t.NORMAL!==undefined?acc(t.NORMAL):null}));
+const idx=Uint32Array.from(acc(p.indices));const mk=(d)=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,d,gl.DYNAMIC_DRAW);return b};
+const ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,idx,gl.STATIC_DRAW);
+return{mi,base,nrm,targets,count:idx.length,posB:mk(base),nrmB:mk(nrm),uvB:p.attributes.TEXCOORD_0!==undefined?mk(acc(p.attributes.TEXCOORD_0)):null,jB:mk(jf),wB:mk(wt),ib,mat:p.material,names:m.extras&&m.extras.targetNames,
+curP:new Float32Array(base.length),curN:new Float32Array(nrm.length)}});
+G={gl,pr,json,acc,tex,skin,ibm,meshes,anims:{}};
+for(const a of json.animations){const ch=a.channels.map(c=>{const s=a.samplers[c.sampler];return{node:c.target.node,path:c.target.path,t:acc(s.input),v:acc(s.output),interp:s.interpolation||'LINEAR'}});G.anims[a.name]={ch,dur:Math.max(...ch.map(c=>c.t[c.t.length-1]))}}
+return{clips:Object.keys(G.anims),nodes:json.nodes.map(n=>n.name)}}
+function sample(c,t,n){const T=c.t;let i=0;if(t>=T[T.length-1])i=T.length-1;else{while(T[i+1]<=t)i++}
+const get=k=>Array.from(c.v.slice(k*n,k*n+n));if(i>=T.length-1||c.interp==='STEP')return get(Math.min(i,T.length-1));
+const f=(t-T[i])/(T[i+1]-T[i]);const a=get(i),b=get(i+1);return n===4&&c.path==='rotation'?slerp(a,b,f):a.map((v,k)=>v+(b[k]-v)*f)}
+function pose(clip,t){const{json}=G;const nodes=json.nodes;const T=nodes.map(n=>({t:n.translation||[0,0,0],r:n.rotation||[0,0,0,1],s:n.scale||[1,1,1]}));let weights={};
+if(clip&&G.anims[clip]){const an=G.anims[clip];const tt=Math.min(t,an.dur);for(const c of an.ch){if(c.path==='weights'){const m=json.meshes[nodes[c.node].mesh];const nt=m.primitives[0].targets.length;weights[nodes[c.node].mesh]=sample(c,tt,nt)}
+else{const n=c.path==='rotation'?4:3;T[c.node][c.path==='translation'?'t':c.path==='rotation'?'r':'s']=sample(c,tt,n)}}}
+const world=new Array(nodes.length);const par=new Array(nodes.length).fill(-1);nodes.forEach((n,i)=>(n.children||[]).forEach(c=>par[c]=i));
+const gw=i=>{if(world[i])return world[i];const l=M.trs(T[i].t,T[i].r,T[i].s);return world[i]=par[i]<0?l:M.mul(gw(par[i]),l)};
+const jm=new Float32Array(27*16);G.skin.joints.forEach((jn,k)=>{jm.set(M.mul(gw(jn),G.ibm.slice(k*16,k*16+16)),k*16)});return{jm,weights}}
+function render(clip,t,opt){opt=opt||{};const{gl,pr,meshes}=G;const W=gl.canvas.width,H=gl.canvas.height;gl.viewport(0,0,W,H);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);
+const{jm,weights}=pose(clip,t);const ex=opt.extraWeights||{};
+const dist=opt.dist||3.1,fov=(opt.fov||28)*Math.PI/180;const VP=M.mul(M.persp(fov,W/H,.1,20),M.tr(opt.panX||0,opt.panY||0,-dist));
+const R=M.mul(M.rotY((opt.yaw||0)*Math.PI/180),M.tr(0,opt.cy||0,0));
+gl.uniformMatrix4fv(gl.getUniformLocation(pr,'J'),false,jm);gl.uniformMatrix4fv(gl.getUniformLocation(pr,'VP'),false,VP);gl.uniformMatrix4fv(gl.getUniformLocation(pr,'R'),false,R);
+for(const m of meshes){const w=(weights[m.mi]||[]).slice();if(ex[m.mi])ex[m.mi].forEach((v,k)=>{if(v!==undefined&&v!==null)w[k]=v});
+m.curP.set(m.base);m.curN.set(m.nrm);for(let k=0;k<m.targets.length;k++){const wk=w[k]||0;if(Math.abs(wk)<1e-4)continue;const tp=m.targets[k].pos;for(let q=0;q<tp.length;q++)m.curP[q]+=tp[q]*wk;if(m.targets[k].nrm){const tn=m.targets[k].nrm;for(let q=0;q<tn.length;q++)m.curN[q]+=tn[q]*wk}}
+gl.bindBuffer(gl.ARRAY_BUFFER,m.posB);gl.bufferData(gl.ARRAY_BUFFER,m.curP,gl.DYNAMIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,m.nrmB);gl.bufferData(gl.ARRAY_BUFFER,m.curN,gl.DYNAMIC_DRAW);
+const bind=(name,b,sz)=>{const l=gl.getAttribLocation(pr,name);if(l<0)return;gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,sz,gl.FLOAT,false,0,0)};
+bind('p',m.posB,3);bind('n',m.nrmB,3);bind('j',m.jB,4);bind('w',m.wB,4);const ul=gl.getAttribLocation(pr,'uv');
+if(m.uvB){bind('uv',m.uvB,2)}else{gl.disableVertexAttribArray(ul);gl.vertexAttrib2f(ul,0,0)}
+gl.uniform1f(gl.getUniformLocation(pr,'useTex'),m.uvB?1:0);gl.uniform3f(gl.getUniformLocation(pr,"flatc"),.04,.07,.30);gl.uniform1f(gl.getUniformLocation(pr,'em'),m.uvB?0:.9);
+gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,G.tex);gl.uniform1i(gl.getUniformLocation(pr,'tex'),0);
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,m.ib);gl.drawElements(gl.TRIANGLES,m.count,gl.UNSIGNED_INT,0)}
+return gl.canvas.toDataURL('image/png')}
+window.__init=init;window.__render=render;
+</script></body></html>

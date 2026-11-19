@@ -1,0 +1,137 @@
+{
+ "root": {
+  "x": 210.0,
+  "y": 533.9,
+  "parent": null
+ },
+ "hips": {
+  "x": 210.0,
+  "y": 450.4,
+  "parent": "root"
+ },
+ "spine": {
+  "x": 210.0,
+  "y": 420.9,
+  "parent": "hips"
+ },
+ "chest": {
+  "x": 210.0,
+  "y": 391.5,
+  "parent": "spine"
+ },
+ "neck": {
+  "x": 210.0,
+  "y": 352.5,
+  "parent": "chest"
+ },
+ "head": {
+  "x": 210.0,
+  "y": 336.0,
+  "parent": "neck"
+ },
+ "shoulder_L": {
+  "x": 248.8,
+  "y": 390.9,
+  "parent": "chest"
+ },
+ "upperArm_L": {
+  "x": 263.5,
+  "y": 402.7,
+  "parent": "shoulder_L"
+ },
+ "lowerArm_L": {
+  "x": 276.0,
+  "y": 436.9,
+  "parent": "upperArm_L"
+ },
+ "hand_L": {
+  "x": 273.4,
+  "y": 463.8,
+  "parent": "lowerArm_L"
+ },
+ "upperLeg_L": {
+  "x": 235.2,
+  "y": 460.1,
+  "parent": "hips"
+ },
+ "lowerLeg_L": {
+  "x": 232.9,
+  "y": 494.5,
+  "parent": "upperLeg_L"
+ },
+ "foot_L": {
+  "x": 225.0,
+  "y": 514.0,
+  "parent": "lowerLeg_L"
+ },
+ "shoulder_R": {
+  "x": 171.2,
+  "y": 390.9,
+  "parent": "chest"
+ },
+ "upperArm_R": {
+  "x": 156.5,
+  "y": 402.7,
+  "parent": "shoulder_R"
+ },
+ "lowerArm_R": {
+  "x": 144.0,
+  "y": 436.9,
+  "parent": "upperArm_R"
+ },
+ "hand_R": {
+  "x": 146.6,
+  "y": 463.8,
+  "parent": "lowerArm_R"
+ },
+ "upperLeg_R": {
+  "x": 184.8,
+  "y": 460.1,
+  "parent": "hips"
+ },
+ "lowerLeg_R": {
+  "x": 187.1,
+  "y": 494.5,
+  "parent": "upperLeg_R"
+ },
+ "foot_R": {
+  "x": 195.0,
+  "y": 514.0,
+  "parent": "lowerLeg_R"
+ },
+ "tail_1": {
+  "x": 210.0,
+  "y": 443.3,
+  "parent": "hips"
+ },
+ "tail_2": {
+  "x": 210.0,
+  "y": 466.4,
+  "parent": "tail_1"
+ },
+ "tail_3": {
+  "x": 210.0,
+  "y": 479.2,
+  "parent": "tail_2"
+ },
+ "ear_1_L": {
+  "x": 345.0,
+  "y": 249.5,
+  "parent": "head"
+ },
+ "ear_2_L": {
+  "x": 351.6,
+  "y": 175.8,
+  "parent": "ear_1_L"
+ },
+ "ear_1_R": {
+  "x": 74.6,
+  "y": 248.2,
+  "parent": "head"
+ },
+ "ear_2_R": {
+  "x": 68.2,
+  "y": 175.0,
+  "parent": "ear_1_R"
+ }
+}
