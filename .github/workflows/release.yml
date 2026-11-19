@@ -1,0 +1,51 @@
+name: release
+# Builds a signed release APK on every push to main and publishes it as a GitHub Release.
+# Obtainium (or any updater) watches this repo's releases and offers one-tap updates.
+on:
+  push:
+    branches: [main]
+    paths: ["app/**", "build.gradle.kts", "settings.gradle.kts", "gradle.properties", ".github/workflows/release.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+      - name: Check signing key
+        env:
+          KS: ${{ secrets.VALIS_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$KS" ]; then
+            echo "::error::Signing secrets are missing. Add VALIS_KEYSTORE_B64, VALIS_KEYSTORE_PASSWORD and VALIS_KEY_ALIAS in repo Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          echo "$KS" | base64 -d > "$RUNNER_TEMP/valis-release.jks"
+      - name: Build signed release APK
+        env:
+          VALIS_KEYSTORE: ${{ runner.temp }}/valis-release.jks
+          VALIS_KEYSTORE_PASSWORD: ${{ secrets.VALIS_KEYSTORE_PASSWORD }}
+          VALIS_KEY_ALIAS: ${{ secrets.VALIS_KEY_ALIAS }}
+        run: gradle :app:testDebugUnitTest :app:assembleRelease --stacktrace
+      - name: Verify signature
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          "$ANDROID_HOME"/build-tools/*/apksigner verify --print-certs "$APK" | head -3
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER="0.3.${{ github.run_number }}"
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          cp "$APK" "valis-$VER.apk"
+          gh release create "v$VER" "valis-$VER.apk" --title "VALIS $VER" --notes "Automated build of ${{ github.sha }}" --latest

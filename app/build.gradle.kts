@@ -5,7 +5,29 @@ plugins {
 android {
     namespace = "ai.valis.app"
     compileSdk = 35
-    defaultConfig { applicationId = "ai.valis.companion"; minSdk = 26; targetSdk = 35; versionCode = 2; versionName = "0.2.0" }
+    // CI sets GITHUB_RUN_NUMBER; every build gets a higher versionCode so Android accepts it as an update.
+    val runNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 0
+    defaultConfig {
+        applicationId = "ai.valis.companion"; minSdk = 26; targetSdk = 35
+        versionCode = 1000 + runNumber; versionName = "0.3.$runNumber"
+    }
+    // The permanent release key lives only in GitHub secrets (decoded to a file by the release workflow).
+    val keystorePath = System.getenv("VALIS_KEYSTORE")
+    signingConfigs {
+        if (keystorePath != null) create("valis") {
+            storeFile = file(keystorePath)
+            storePassword = System.getenv("VALIS_KEYSTORE_PASSWORD")?.trim()
+            keyAlias = System.getenv("VALIS_KEY_ALIAS")?.trim()
+            keyPassword = System.getenv("VALIS_KEYSTORE_PASSWORD")?.trim()
+        }
+    }
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            signingConfigs.findByName("valis")?.let { signingConfig = it }
+        }
+    }
+    lint { checkReleaseBuilds = false }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
 }
