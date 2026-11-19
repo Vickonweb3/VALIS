@@ -72,6 +72,7 @@ class FilamentCharacterView(context: Context) : FrameLayout(context) {
     private var running = false
     private var lastFrameNanos = 0L
     private var destroyed = false
+    private var firstFrameLogged = false
     var onError: (Throwable) -> Unit = { Log.e(TAG, "character failed", it) }
     var onReady: () -> Unit = {}
 
@@ -145,6 +146,7 @@ class FilamentCharacterView(context: Context) : FrameLayout(context) {
             frameCamera(a)
             if (width > 0) resize(width, height)
             startLoop()
+            Log.i(TAG, "character ready: ${parsed.joints.size} joints, ${parsed.clips.size} clips")
             onReady()
         } catch (t: Throwable) {
             releaseEngineObjects()
@@ -239,7 +241,10 @@ class FilamentCharacterView(context: Context) : FrameLayout(context) {
         }
         val sc = swapChain ?: return
         val rd = renderer ?: return
-        if (ui.isReadyToRender && rd.beginFrame(sc, nanos)) { rd.render(view!!); rd.endFrame() }
+        if (ui.isReadyToRender && rd.beginFrame(sc, nanos)) {
+            rd.render(view!!); rd.endFrame()
+            if (!firstFrameLogged) { firstFrameLogged = true; Log.i(TAG, "first frame rendered") }
+        }
     }
 
     private fun startLoop() { if (!running && runtime != null) { running = true; lastFrameNanos = 0L; Choreographer.getInstance().postFrameCallback(frame) } }

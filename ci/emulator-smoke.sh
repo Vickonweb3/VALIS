@@ -12,5 +12,8 @@ adb exec-out screencap -p > "$OUT/overlay.png"
 adb logcat -d -s VALIS.Character:V VALIS.Overlay:V AndroidRuntime:E Filament:V gltfio:V > "$OUT/valis.log"
 adb shell dumpsys window windows | grep -i "ai.valis" > "$OUT/windows.txt" || true
 echo "--- VALIS log ---"; cat "$OUT/valis.log"
-# Fail the job only on a hard crash; character errors are reported in the log and screenshot.
-if grep -q "FATAL EXCEPTION" "$OUT/valis.log"; then echo "app crashed"; exit 1; fi
+if grep -q "FATAL EXCEPTION" "$OUT/valis.log"; then echo "FAIL: app crashed"; exit 1; fi
+if grep -q "character unavailable" "$OUT/valis.log"; then echo "FAIL: character did not load"; exit 1; fi
+grep -q "character ready" "$OUT/valis.log" || { echo "FAIL: character never became ready"; exit 1; }
+grep -q "first frame rendered" "$OUT/valis.log" || { echo "FAIL: no frame was rendered"; exit 1; }
+echo "PASS: character loaded and rendered"
