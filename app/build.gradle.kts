@@ -17,4 +17,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.android.filament:filament-android:1.56.0")
     implementation("com.google.android.filament:filament-utils-android:1.56.0")
+    testImplementation("junit:junit:4.13.2")
 }

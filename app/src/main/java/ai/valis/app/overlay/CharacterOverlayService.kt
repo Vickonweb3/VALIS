@@ -2,12 +2,16 @@ package ai.valis.app.overlay
 
 import android.app.*
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
 import android.view.*
 import android.widget.*
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
+import ai.valis.app.MainActivity
 
 class CharacterOverlayService : Service() {
     private lateinit var wm: WindowManager
@@ -22,24 +26,46 @@ class CharacterOverlayService : Service() {
             getSystemService(NotificationManager::class.java).createNotificationChannel(
                 NotificationChannel(CHANNEL, "VALIS companion", NotificationManager.IMPORTANCE_LOW))
         }
-        startForeground(ID, NotificationCompat.Builder(this, CHANNEL)
-            .setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle("VALIS is active")
-            .setContentText("Floating character companion").setOngoing(true).build())
+        val type = if (Build.VERSION.SDK_INT >= 34) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
+        ServiceCompat.startForeground(this, ID, buildNotification(), type)
         wm = getSystemService(WINDOW_SERVICE) as WindowManager
-        attach()
+    }
+
+    /** Always shows a Stop action: the user can end VALIS at any time. */
+    private fun buildNotification(): Notification {
+        val open = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        val stop = PendingIntent.getService(this, 1,
+            Intent(this, CharacterOverlayService::class.java).setAction(OverlayController.ACTION_STOP), PendingIntent.FLAG_IMMUTABLE)
+        return NotificationCompat.Builder(this, CHANNEL)
+            .setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle("VALIS is active")
+            .setContentText("Tap to open. Stop turns VALIS off.").setOngoing(true)
+            .setContentIntent(open).addAction(0, "Stop", stop).build()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == OverlayController.ACTION_STOP) {
+            OverlayController.stop(this)
+            return START_NOT_STICKY
+        }
+        // Without the overlay permission there is nothing to show; do not loop.
+        if (!Settings.canDrawOverlays(this)) { stopSelf(); return START_NOT_STICKY }
+        // A null intent means Android restarted us after killing the process: honour the user's last choice.
+        if (intent == null && !OverlayPrefs(this).wanted) { stopSelf(); return START_NOT_STICKY }
+        if (root == null) attach()
+        return START_STICKY
     }
 
     private fun attach() {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; setPadding(dp(8),dp(8),dp(8),dp(8))
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(0xEE17151F.toInt()); cornerRadius=dp(22).toFloat(); setStroke(dp(1),0xFF8057F5.toInt())
+                setColor(0xEE0E0E19.toInt()); cornerRadius=dp(22).toFloat(); setStroke(dp(1),0xFF1B55FF.toInt())
             }
         }
         val head = LinearLayout(this).apply { gravity=Gravity.CENTER_VERTICAL }
         val avatar = TextView(this).apply {
             text="V"; textSize=22f; gravity=Gravity.CENTER; setTextColor(-1)
-            background=android.graphics.drawable.GradientDrawable().apply { shape=android.graphics.drawable.GradientDrawable.OVAL; setColor(0xFF6A4DFF.toInt()) }
+            background=android.graphics.drawable.GradientDrawable().apply { shape=android.graphics.drawable.GradientDrawable.OVAL; setColor(0xFF1B55FF.toInt()) }
             layoutParams=LinearLayout.LayoutParams(dp(48),dp(48))
         }
         head.addView(avatar)
@@ -48,14 +74,14 @@ class CharacterOverlayService : Service() {
         box.addView(head)
         panel=LinearLayout(this).apply {
             orientation=LinearLayout.VERTICAL; visibility=View.GONE; setPadding(dp(4),dp(8),dp(4),0)
-            addView(TextView(this@CharacterOverlayService).apply { text="Character renderer attachment point"; setTextColor(0xFFBDB8C9.toInt()) })
-            addView(Button(this@CharacterOverlayService).apply { text="Sleep / hide"; setOnClickListener { stopSelf() } })
+            addView(TextView(this@CharacterOverlayService).apply { text="Character renderer attachment point"; setTextColor(0xFFE3E4F1.toInt()) })
+            addView(Button(this@CharacterOverlayService).apply { text="Turn off VALIS"; setOnClickListener { OverlayController.stop(this@CharacterOverlayService) } })
         }
         box.addView(panel)
         head.setOnTouchListener(DragTouch())
         lp=WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT,
             if(Build.VERSION.SDK_INT>=26) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,PixelFormat.TRANSLUCENT
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,PixelFormat.TRANSLUCENT
         ).apply { gravity=Gravity.TOP or Gravity.END; x=dp(12); y=dp(130) }
         root=box; wm.addView(box,lp)
     }
