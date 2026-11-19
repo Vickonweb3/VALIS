@@ -112,10 +112,13 @@ create table subscriptions (
 );
 create table entitlements (org_id uuid not null references organizations(id), feature text not null, value jsonb not null, source text not null, expires_at timestamptz, primary key (org_id, feature));
 create table usage_events (
-  id uuid primary key, org_id uuid not null, user_id uuid, device_id uuid, at timestamptz not null default now(),
+  id uuid not null, org_id uuid not null, user_id uuid, device_id uuid, at timestamptz not null default now(),
   meter text not null check (meter in ('voice_seconds','vision_frames','tokens_in','tokens_out','tool_calls','storage_bytes','embedding_tokens')),
-  quantity bigint not null, ref_turn_id uuid, provider text, model_id text
+  quantity bigint not null, ref_turn_id uuid, provider text, model_id text,
+  primary key (id, at)  -- a primary key on a partitioned table must include the partition column
 ) partition by range (at);
+-- Monthly partitions are created by the worker; this default catches anything outside them.
+create table usage_events_default partition of usage_events default;
 create table usage_rollups (org_id uuid not null, day date not null, meter text not null, quantity bigint not null, primary key (org_id, day, meter));
 create table usage_limits (org_id uuid not null, meter text not null, period text not null check (period in ('day','month')), hard_limit bigint, soft_limit bigint, primary key (org_id, meter, period));
 
