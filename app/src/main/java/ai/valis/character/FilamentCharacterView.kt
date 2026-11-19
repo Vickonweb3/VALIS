@@ -273,5 +273,12 @@ class FilamentCharacterView(context: Context) : FrameLayout(context) {
         e.destroy(); engine = null
     }
 
-    private companion object { const val TAG = "VALIS.Character" }
+    private companion object {
+        const val TAG = "VALIS.Character"
+        // Loads libfilament-jni and libgltfio-jni. Must run once before any Filament call.
+        init {
+            com.google.android.filament.Filament.init()
+            com.google.android.filament.gltfio.Gltfio.init()
+        }
+    }
 }
