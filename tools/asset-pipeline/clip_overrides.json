@@ -1,0 +1,4 @@
+{
+  "tail_wag": {"mask": ["tail_1", "tail_2", "tail_3"], "tags": ["fidget"]},
+  "ear_twitch": {"mask": ["ear_1_L", "ear_2_L", "ear_1_R", "ear_2_R"], "tags": ["fidget"]}
+}
